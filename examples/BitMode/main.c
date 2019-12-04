@@ -9,18 +9,20 @@
  */
 #include <stdio.h>
 #include "../ftd2xx.h"
+#include <unistd.h>
 
-
+static const int DATALEN = 1000000;
 
 int main(int argc, char *argv[])
 {
 	DWORD       bytesWritten = 0;
-	DWORD       baudRate = 9600;
+	DWORD       baudRate = 96000; //Origin:9600
 	FT_STATUS	ftStatus = FT_OK;
 	FT_HANDLE	ftHandle;
 	UCHAR       outputData;
 	UCHAR       pinStatus;
 	int         portNumber;
+	int 		data[DATALEN];
 	
 	if (argc > 1) 
 	{
@@ -47,7 +49,7 @@ int main(int argc, char *argv[])
 	printf("Selecting asynchronous bit-bang mode.\n");	
 	ftStatus = FT_SetBitMode(ftHandle, 
 	                         0xFF, /* sets all 8 pins as outputs */
-	                         FT_BITMODE_ASYNC_BITBANG);
+	                         FT_BITMODE_ASYNC_BITBANG); //origin FT_BITMODE_ASYNC_BITBANG
 	if (ftStatus != FT_OK) 
 	{
 		printf("FT_SetBitMode failed (error %d).\n", (int)ftStatus);
@@ -95,12 +97,43 @@ int main(int argc, char *argv[])
 	printf("Success: pin data is %02X, as expected.\n", 
 		   (unsigned int)pinStatus);
 
+	/* Initial the test data */
+	for(int i=0;i<DATALEN;i++)
+	{
+		if(i % 2)
+			data[i] = 0x00;
+		else
+			data[i] = 0xFF;
+	}
+
+	/* Toggle the IO with continuous data */
+	ftStatus = FT_Write(ftHandle, data, DATALEN, &bytesWritten);
+	if(ftStatus != FT_OK)
+	{
+		printf("Data buffer transmits error!\n");
+	}
+	else
+	{
+		printf("Bytes transferred: %d!\n",bytesWritten);
+	}
+	
+	// /* Toggle the IO without delay */
+	// printf("Start output toggle test.\n");
+	// for(int i;i<10000;i++)
+	// {
+	// 	outputData = 0x00;
+	// 	ftStatus = FT_Write(ftHandle, &outputData, 1, &bytesWritten);
+	// 	usleep(1000);
+	// 	outputData = 0xFF;
+	// 	ftStatus = FT_Write(ftHandle, &outputData, 1, &bytesWritten);
+	// 	usleep(1000);
+	// }
 
 exit:
-	/* Return chip to default (UART) mode. */
-	(void)FT_SetBitMode(ftHandle, 
-	                    0, /* ignored with FT_BITMODE_RESET */
-	                    FT_BITMODE_RESET);
+// 	/* Return chip to default (UART) mode. */
+// 	(void)FT_SetBitMode(ftHandle, 
+// 	                    0, /* ignored with FT_BITMODE_RESET */
+// 	                    FT_BITMODE_RESET);
 
 	(void)FT_Close(ftHandle);
 	return 0;

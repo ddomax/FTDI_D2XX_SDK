@@ -2,6 +2,11 @@ D2XX for Linux
 --------------
 Examples are modified for FT232R.
 
+Before executing the examples, run 
+    > sudo rmmod ftdi_sio
+    > sudo rmmod usbserial
+to remove the VCP drivers that already exists.
+
 As Linux distributions vary these instructions are a guide to installation 
 and use.  FTDI has tested the driver with Ubuntu 14.04 (kernel version 3.13) 
 for i386 and x86_64, and Raspbian 7 (kernel version 3.18) for arm-v6-hf.
