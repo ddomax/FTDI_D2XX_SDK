@@ -1,5 +1,6 @@
 D2XX for Linux
 --------------
+Examples are modified for FT232R.
 
 As Linux distributions vary these instructions are a guide to installation 
 and use.  FTDI has tested the driver with Ubuntu 14.04 (kernel version 3.13) 
